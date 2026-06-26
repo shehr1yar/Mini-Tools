@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Password Generator | Mini Tools</title>
+    <link rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Circle-icons-tools-light_blue.svg/960px-Circle-icons-tools-light_blue.svg.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --blue: rgb(1, 1, 179);
+            --blue-dark: rgb(0, 0, 120);
+            --blue-light: rgba(1, 1, 179, 0.08);
+            --blue-glow: rgba(1, 1, 179, 0.25);
+            --off-white: #f7f8ff;
+            --text: #0d0d2b;
+            --muted: #6b6b8a;
+            --border: rgba(1, 1, 179, 0.15);
+        }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background-color: var(--off-white);
+            color: var(--text);
+            overflow-x: hidden;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        ::selection { background: var(--blue); color: white; }
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.4;
+        }
+        .page-wrapper {
+            flex: 1;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 20px 80px;
+        }
+        .page-title-wrap {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeUp 0.5s ease both;
+        }
+        .page-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--blue-light);
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            padding: 6px 16px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--blue);
+            letter-spacing: 0.5px;
+            margin-bottom: 16px;
+        }
+        .page-eyebrow span { width: 6px; height: 6px; background: var(--blue); border-radius: 50%; display: inline-block; }
+        .page-title {
+            font-family: 'Syne', sans-serif;
+            font-size: clamp(32px, 5vw, 52px);
+            font-weight: 800;
+            letter-spacing: -2px;
+            color: var(--text);
+            line-height: 1;
+        }
+        .page-title .accent { color: var(--blue); }
+        .page-subtitle { font-size: 15px; color: var(--muted); margin-top: 12px; }
+
+        .card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 28px;
+            padding: 36px;
+            width: 100%;
+            max-width: 460px;
+            box-shadow: 0 20px 60px rgba(1,1,179,0.1);
+            animation: fadeUp 0.5s 0.1s ease both;
+        }
+
+        .pass-display {
+            background: var(--off-white);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px 24px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            min-height: 70px;
+        }
+        .pass-text {
+            font-family: 'DM Mono', 'Courier New', monospace;
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text);
+            word-break: break-all;
+            flex: 1;
+            letter-spacing: 1px;
+        }
+        .pass-text.placeholder { color: var(--muted); font-style: italic; font-size: 14px; letter-spacing: 0; }
+        .copy-btn {
+            background: var(--blue-light);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 8px 14px;
+            font-family: 'Syne', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--blue);
+            cursor: pointer;
+            transition: 0.2s ease;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .copy-btn:hover { background: var(--blue); color: white; }
+        .copy-btn.copied { background: #22c55e; color: white; border-color: #22c55e; }
+
+        .strength-wrap { margin-bottom: 24px; }
+        .strength-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: var(--muted);
+            margin-bottom: 8px;
+        }
+        .strength-label span { font-weight: 700; }
+        .strength-bar {
+            height: 6px;
+            background: var(--off-white);
+            border-radius: 100px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+        .strength-fill {
+            height: 100%;
+            border-radius: 100px;
+            transition: width 0.4s ease, background 0.4s ease;
+            width: 0%;
+        }
+
+        .field-label {
+            font-family: 'Syne', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--muted);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .slider-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+        .length-slider {
+            flex: 1;
+            -webkit-appearance: none;
+            height: 6px;
+            border-radius: 100px;
+            background: var(--off-white);
+            border: 1px solid var(--border);
+            outline: none;
+        }
+        .length-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: var(--blue);
+            cursor: pointer;
+            box-shadow: 0 2px 8px var(--blue-glow);
+        }
+        .length-value {
+            font-family: 'Syne', sans-serif;
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--blue);
+            min-width: 32px;
+            text-align: center;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 24px;
+        }
+        .option-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--off-white);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px 14px;
+            cursor: pointer;
+            transition: 0.2s ease;
+            user-select: none;
+        }
+        .option-toggle:hover { border-color: rgba(1,1,179,0.3); }
+        .option-toggle.checked {
+            background: var(--blue-light);
+            border-color: rgba(1,1,179,0.3);
+        }
+        .option-toggle input { display: none; }
+        .toggle-dot {
+            width: 18px;
+            height: 18px;
+            border-radius: 5px;
+            border: 2px solid var(--border);
+            background: white;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s;
+        }
+        .option-toggle.checked .toggle-dot {
+            background: var(--blue);
+            border-color: var(--blue);
+        }
+        .toggle-dot svg { display: none; }
+        .option-toggle.checked .toggle-dot svg { display: block; }
+        .option-label {
+            font-family: 'Syne', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .gen-btn {
+            width: 100%;
+            padding: 15px;
+            background: var(--blue);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-family: 'Syne', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s ease;
+            box-shadow: 0 6px 20px var(--blue-glow);
+        }
+        .gen-btn:hover { background: var(--blue-dark); transform: translateY(-2px); box-shadow: 0 10px 28px var(--blue-glow); }
+        .gen-btn:active { transform: translateY(0); }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(24px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="header"></div>
+
+    <div class="page-wrapper">
+        <div class="page-title-wrap">
+            <div class="page-eyebrow"><span></span> Mini Tools</div>
+            <h1 class="page-title">Password <span class="accent">Gen</span></h1>
+            <p class="page-subtitle">Strong passwords, zero stress.</p>
+        </div>
+
+        <div class="card">
+            <div class="pass-display">
+                <span class="pass-text placeholder" id="passText">Click generate below...</span>
+                <button class="copy-btn" id="copyBtn" onclick="copyPassword()">Copy</button>
+            </div>
+
+            <div class="strength-wrap">
+                <div class="strength-label">
+                    Password Strength <span id="strengthLabel">—</span>
+                </div>
+                <div class="strength-bar">
+                    <div class="strength-fill" id="strengthFill"></div>
+                </div>
+            </div>
+
+            <label class="field-label">Length</label>
+            <div class="slider-row">
+                <input class="length-slider" type="range" id="lengthSlider" min="6" max="32" value="16" oninput="updateLength()">
+                <span class="length-value" id="lengthValue">16</span>
+            </div>
+
+            <label class="field-label">Include</label>
+            <div class="options-grid">
+                <label class="option-toggle checked" id="tog-upper" onclick="toggleOption('tog-upper', 'inclUpper')">
+                    <input type="checkbox" id="inclUpper" checked>
+                    <div class="toggle-dot"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6l3 3 5-5"/></svg></div>
+                    <span class="option-label">Uppercase</span>
+                </label>
+                <label class="option-toggle checked" id="tog-lower" onclick="toggleOption('tog-lower', 'inclLower')">
+                    <input type="checkbox" id="inclLower" checked>
+                    <div class="toggle-dot"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6l3 3 5-5"/></svg></div>
+                    <span class="option-label">Lowercase</span>
+                </label>
+                <label class="option-toggle checked" id="tog-numbers" onclick="toggleOption('tog-numbers', 'inclNumbers')">
+                    <input type="checkbox" id="inclNumbers" checked>
+                    <div class="toggle-dot"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6l3 3 5-5"/></svg></div>
+                    <span class="option-label">Numbers</span>
+                </label>
+                <label class="option-toggle checked" id="tog-symbols" onclick="toggleOption('tog-symbols', 'inclSymbols')">
+                    <input type="checkbox" id="inclSymbols" checked>
+                    <div class="toggle-dot"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6l3 3 5-5"/></svg></div>
+                    <span class="option-label">Symbols</span>
+                </label>
+            </div>
+
+            <button class="gen-btn" onclick="generatePassword()">Generate Password</button>
+        </div>
+    </div>
+
+    <div id="footer"></div>
+
+<script>
+    function toggleOption(labelId, checkboxId) {
+        var label = document.getElementById(labelId);
+        var cb = document.getElementById(checkboxId);
+        
+        if (cb.checked == true) {
+            cb.checked = false;
+            label.classList.remove('checked');
+        } else {
+            cb.checked = true;
+            label.classList.add('checked');
+        }
+        generatePassword();
+    }
+
+    function updateLength() {
+        var slider = document.getElementById('lengthSlider');
+        document.getElementById('lengthValue').textContent = slider.value;
+        generatePassword();
+    }
+
+    function generatePassword() {
+        var upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        var lower = 'abcdefghijklmnopqrstuvwxyz';
+        var numbers = '0123456789';
+        var symbols = '!@#$%^&*()_+-=[]{}|;:,.<>?';
+
+        var charset = '';
+
+        if (document.getElementById('inclUpper').checked) {
+            charset = charset + upper;
+        }
+        if (document.getElementById('inclLower').checked) {
+            charset = charset + lower;
+        }
+        if (document.getElementById('inclNumbers').checked) {
+            charset = charset + numbers;
+        }
+        if (document.getElementById('inclSymbols').checked) {
+            charset = charset + symbols;
+        }
+
+        if (charset == '') {
+            document.getElementById('passText').textContent = 'Select at least one option!';
+            document.getElementById('passText').className = 'pass-text placeholder';
+            return;
+        }
+
+        var length = parseInt(document.getElementById('lengthSlider').value);
+        var password = '';
+
+        for (var i = 0; i < length; i++) {
+            var randomIndex = Math.floor(Math.random() * charset.length);
+            password = password + charset[randomIndex];
+        }
+
+        var el = document.getElementById('passText');
+        el.textContent = password;
+        el.className = 'pass-text';
+
+        updateStrength(password);
+
+        var copyBtn = document.getElementById('copyBtn');
+        copyBtn.textContent = 'Copy';
+        copyBtn.classList.remove('copied');
+    }
+
+    function updateStrength(pw) {
+        var score = 0;
+        
+        if (pw.length >= 8) { score = score + 1; }
+        if (pw.length >= 12) { score = score + 1; }
+        if (pw.length >= 16) { score = score + 1; }
+
+        var hasUpper = false;
+        var hasLower = false;
+        var hasNumber = false;
+        var hasSymbol = false;
+
+        var upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        var lower = 'abcdefghijklmnopqrstuvwxyz';
+        var numbers = '0123456789';
+
+        for (var i = 0; i < pw.length; i++) {
+            var char = pw[i];
+            if (upper.indexOf(char) !== -1) { hasUpper = true; }
+            else if (lower.indexOf(char) !== -1) { hasLower = true; }
+            else if (numbers.indexOf(char) !== -1) { hasNumber = true; }
+            else { hasSymbol = true; }
+        }
+
+        if (hasUpper == true) { score = score + 1; }
+        if (hasLower == true) { score = score + 1; }
+        if (hasNumber == true) { score = score + 1; }
+        if (hasSymbol == true) { score = score + 1; }
+
+        var fill = document.getElementById('strengthFill');
+        var label = document.getElementById('strengthLabel');
+
+        if (score <= 2) {
+            fill.style.width = '25%';
+            fill.style.background = '#ef4444';
+            label.textContent = 'Weak';
+        } else if (score <= 4) {
+            fill.style.width = '50%';
+            fill.style.background = '#f97316';
+            label.textContent = 'Fair';
+        } else if (score <= 5) {
+            fill.style.width = '75%';
+            fill.style.background = '#eab308';
+            label.textContent = 'Good';
+        } else {
+            fill.style.width = '100%';
+            fill.style.background = '#22c55e';
+            label.textContent = 'Strong';
+        }
+    }
+
+    function copyPassword() {
+        var text = document.getElementById('passText').textContent;
+        if (text == '' || text == 'Click generate below...' || text == 'Select at least one option!') {
+            return;
+        }
+        
+        navigator.clipboard.writeText(text).then(function() {
+            var btn = document.getElementById('copyBtn');
+            btn.textContent = 'Copied!';
+            btn.classList.add('copied');
+            setTimeout(function() {
+                btn.textContent = 'Copy';
+                btn.classList.remove('copied');
+            }, 2000);
+        });
+    }
+
+    fetch("../header-footer/header.html")
+        .then(function(res) { return res.text(); })
+        .then(function(data) {
+            document.getElementById("header").innerHTML = data;
+            var hamburger = document.querySelector(".hamburger");
+            var navMenu = document.querySelector(".nav-menu");
+            if (hamburger) {
+                hamburger.addEventListener("click", function() {
+                    hamburger.classList.toggle("active");
+                    navMenu.classList.toggle("active");
+                });
+            }
+            
+            var navLinks = document.querySelectorAll(".nav-menu a");
+            for (var i = 0; i < navLinks.length; i++) {
+                navLinks[i].addEventListener("click", function() {
+                    if (hamburger) {
+                        hamburger.classList.remove("active");
+                        navMenu.classList.remove("active");
+                    }
+                });
+            }
+        });
+
+    fetch("../header-footer/footer.html")
+        .then(function(res) { return res.text(); })
+        .then(function(data) {
+            document.getElementById("footer").innerHTML = data;
+        });
+</script>
+</body>
+</html>

@@ -1,0 +1,110 @@
+<footer>
+
+<style>
+
+.footercontainer{
+    background-color: rgb(1, 1, 179);
+    padding: 20px 20px;
+    box-shadow: 0 -5px 15px rgba(30,27,179,0.2);
+}
+
+.mainfooter{
+    max-width: 1100px;
+    margin: auto;
+    padding: 0 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 40px;
+}
+
+/* LEFT SIDE */
+
+.footer1 p{
+    font-family: 'Syne', sans-serif;
+    color: white;
+    font-size: 15px;
+    letter-spacing: 0.5px;
+    font-weight: 400;
+    margin: 10px 0;
+    line-height: 26px;
+}
+
+/* RIGHT SIDE */
+
+.footer2 ul{
+    list-style: none;
+    padding: 15px 0px 0px 0px;
+    margin: 0;
+
+    display: flex;
+    gap: 25px;
+}
+
+.footer2 li{
+    margin-bottom: 0px;
+}
+
+.footer2 a{
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+    font-family: 'Poppins', sans-serif;
+    font-size: 15px;
+    transition: 0.3s ease;
+}
+
+.footer2 a:hover{
+    color: #c7c7ff;
+    padding-left: 5px;
+}
+
+/* MOBILE */
+
+@media (max-width: 768px){
+
+    .mainfooter{
+        flex-direction: column;
+        text-align: center;
+        align-items: center;
+    }
+
+    .footer2 ul{
+        margin-top: 10px;
+    }
+
+}
+
+</style>
+
+<div class="footercontainer">
+    <div class="mainfooter">
+
+        <div class="footer1">
+            <p>Mini Tools © 2026. Built by Shehriyar Farrukh.</p>
+            <p>Made with HTML, CSS & JavaScript.</p>
+        </div>
+
+        <div class="footer2">
+            <nav>
+                <ul>
+                    <li><a href="index.html">HOME</a></li>
+                    <li><a href="index.html#tools">TOOLS</a></li>
+                    <li>
+                        <a href="https://www.linkedin.com/in/shehriyar-farrukh" target="_blank">
+                            LINKEDIN
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://youtu.be/Aq5WXmQQooo?si=lqkghu8p3B8EsHv4" target="_blank">
+                            RICK ROLL
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+
+    </div>
+</div>
+
+</footer>

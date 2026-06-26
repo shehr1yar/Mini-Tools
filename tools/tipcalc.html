@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tip Calculator | Mini Tools</title>
+    <link rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Circle-icons-tools-light_blue.svg/960px-Circle-icons-tools-light_blue.svg.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --blue: rgb(1, 1, 179);
+            --blue-dark: rgb(0, 0, 120);
+            --blue-light: rgba(1, 1, 179, 0.08);
+            --blue-glow: rgba(1, 1, 179, 0.25);
+            --off-white: #f7f8ff;
+            --text: #0d0d2b;
+            --muted: #6b6b8a;
+            --border: rgba(1, 1, 179, 0.15);
+        }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background-color: var(--off-white);
+            color: var(--text);
+            overflow-x: hidden;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        ::selection { background: var(--blue); color: white; }
+        body::before {
+            content: '';
+            position: fixed; inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events: none; z-index: 0; opacity: 0.4;
+        }
+
+        .page-wrapper {
+            flex: 1; position: relative; z-index: 1;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 60px 20px 80px;
+        }
+
+        .page-title-wrap { text-align: center; margin-bottom: 40px; animation: fadeUp 0.5s ease both; }
+        .page-eyebrow {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: var(--blue-light); border: 1px solid var(--border);
+            border-radius: 100px; padding: 6px 16px;
+            font-size: 13px; font-weight: 500; color: var(--blue); letter-spacing: 0.5px; margin-bottom: 16px;
+        }
+        .page-eyebrow span { width: 6px; height: 6px; background: var(--blue); border-radius: 50%; display: inline-block; }
+        .page-title { font-family: 'Syne', sans-serif; font-size: clamp(32px, 5vw, 52px); font-weight: 800; letter-spacing: -2px; color: var(--text); line-height: 1; }
+        .page-title .accent { color: var(--blue); }
+        .page-subtitle { font-size: 15px; color: var(--muted); margin-top: 12px; }
+
+        /* Card */
+        .card {
+            background: white; border: 1px solid var(--border); border-radius: 28px;
+            padding: 36px; width: 100%; max-width: 460px;
+            box-shadow: 0 20px 60px rgba(1,1,179,0.1); animation: fadeUp 0.5s 0.1s ease both;
+        }
+
+        .field-label {
+            font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 700;
+            color: var(--muted); letter-spacing: 1px; text-transform: uppercase;
+            margin-bottom: 10px; display: block;
+        }
+
+        /* Input with prefix */
+        .input-wrap {
+            position: relative;
+            margin-bottom: 24px;
+        }
+        .input-prefix {
+            position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
+            font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; color: var(--muted);
+            pointer-events: none;
+        }
+        .tip-input {
+            width: 100%;
+            padding: 14px 18px 14px 36px;
+            border: 1px solid var(--border); border-radius: 14px;
+            font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 700;
+            color: var(--text); background: var(--off-white); outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .tip-input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(1,1,179,0.1); background: white; }
+        .tip-input::placeholder { color: rgba(1,1,179,0.25); }
+
+        /* Tip percentage presets */
+        .tip-presets {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        .preset-btn {
+            padding: 10px 4px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            font-family: 'Syne', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--muted);
+            background: var(--off-white);
+            cursor: pointer;
+            transition: 0.2s ease;
+            text-align: center;
+        }
+        .preset-btn:hover { border-color: rgba(1,1,179,0.3); color: var(--blue); }
+        .preset-btn.active { background: var(--blue); color: white; border-color: var(--blue); box-shadow: 0 4px 12px var(--blue-glow); }
+
+        /* Custom tip input */
+        .custom-tip-wrap {
+            position: relative;
+            margin-bottom: 24px;
+        }
+        .custom-tip-input {
+            width: 100%;
+            padding: 12px 40px 12px 18px;
+            border: 1px solid var(--border); border-radius: 14px;
+            font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700;
+            color: var(--text); background: var(--off-white); outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .custom-tip-input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(1,1,179,0.1); background: white; }
+        .custom-tip-suffix {
+            position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+            font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; color: var(--muted);
+        }
+
+        /* People counter */
+        .people-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 28px;
+        }
+        .people-btn {
+            width: 40px; height: 40px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--off-white);
+            font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 700;
+            color: var(--blue);
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: 0.2s ease; flex-shrink: 0;
+        }
+        .people-btn:hover { background: var(--blue-light); border-color: rgba(1,1,179,0.3); }
+        .people-count {
+            font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800;
+            color: var(--text); flex: 1; text-align: center;
+        }
+        .people-label { font-size: 13px; color: var(--muted); text-align: center; }
+
+        /* Result panel */
+        .result-panel {
+            background: var(--blue);
+            border-radius: 20px;
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+        .result-panel::before {
+            content: '';
+            position: absolute;
+            width: 220px; height: 220px; border-radius: 50%;
+            background: rgba(255,255,255,0.05);
+            top: -80px; right: -60px;
+        }
+        .result-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            position: relative; z-index: 1;
+        }
+        .result-item { text-align: center; }
+        .result-item.full { grid-column: span 2; border-top: 1px solid rgba(255,255,255,0.15); padding-top: 12px; margin-top: 4px; }
+        .result-item-label { font-size: 12px; color: rgba(255,255,255,0.6); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; }
+        .result-item-value {
+            font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800;
+            color: white; letter-spacing: -1px;
+        }
+        .result-item.full .result-item-value { font-size: 36px; }
+
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+
+        @media (max-width: 480px) {
+            .card { padding: 24px; }
+            .tip-presets { grid-template-columns: repeat(5, 1fr); gap: 6px; }
+            .preset-btn { font-size: 13px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="header"></div>
+
+    <div class="page-wrapper">
+        <div class="page-title-wrap">
+            <div class="page-eyebrow"><span></span> Mini Tools</div>
+            <h1 class="page-title">Tip <span class="accent">Calculator</span></h1>
+            <p class="page-subtitle">Remember to tip your waiters — they work very hard!</p>
+        </div>
+
+        <div class="card">
+
+            <label class="field-label">Bill Amount</label>
+            <div class="input-wrap">
+                <span class="input-prefix">$</span>
+                <input class="tip-input" type="number" id="billInput" placeholder="0.00" min="0" oninput="calculate()">
+            </div>
+
+            <label class="field-label">Tip Percentage</label>
+            <div class="tip-presets">
+                <button class="preset-btn" onclick="setPreset(this, 5)">5%</button>
+                <button class="preset-btn" onclick="setPreset(this, 10)">10%</button>
+                <button class="preset-btn active" onclick="setPreset(this, 15)">15%</button>
+                <button class="preset-btn" onclick="setPreset(this, 20)">20%</button>
+                <button class="preset-btn" onclick="setPreset(this, 25)">25%</button>
+            </div>
+
+            <div class="custom-tip-wrap">
+                <input class="custom-tip-input" type="number" id="customTip" placeholder="Custom tip" min="0" max="100" oninput="setCustom()">
+                <span class="custom-tip-suffix">%</span>
+            </div>
+
+            <label class="field-label">Split Between</label>
+            <div class="people-row">
+                <button class="people-btn" onclick="changePeople(-1)">−</button>
+                <div>
+                    <div class="people-count" id="peopleCount">1</div>
+                    <div class="people-label" id="peopleLabel">person</div>
+                </div>
+                <button class="people-btn" onclick="changePeople(1)">+</button>
+            </div>
+
+            <div class="result-panel">
+                <div class="result-grid">
+                    <div class="result-item">
+                        <div class="result-item-label">Tip Amount</div>
+                        <div class="result-item-value" id="resTip">$0.00</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-item-label">Tip Per Person</div>
+                        <div class="result-item-value" id="resTipPer">$0.00</div>
+                    </div>
+                    <div class="result-item full">
+                        <div class="result-item-label">Total Per Person</div>
+                        <div class="result-item-value" id="resTotal">$0.00</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="footer"></div>
+
+<script>
+    let tipPercent = 15;
+    let people = 1;
+
+    function setPreset(btn, pct) {
+        let buttons = document.querySelectorAll('.preset-btn');
+        for (let i = 0; i < buttons.length; i++) {
+            buttons[i].classList.remove('active');
+        }
+        btn.classList.add('active');
+        document.getElementById('customTip').value = '';
+        tipPercent = pct;
+        calculate();
+    }
+
+    function setCustom() {
+        let val = parseFloat(document.getElementById('customTip').value);
+        let buttons = document.querySelectorAll('.preset-btn');
+        for (let i = 0; i < buttons.length; i++) {
+            buttons[i].classList.remove('active');
+        }
+        if (isNaN(val)) {
+            tipPercent = 0;
+        } else {
+            tipPercent = val;
+        }
+        calculate();
+    }
+
+    function changePeople(delta) {
+        people = people + delta;
+        if (people < 1) {
+            people = 1;
+        }
+        document.getElementById('peopleCount').textContent = people;
+        if (people === 1) {
+            document.getElementById('peopleLabel').textContent = 'person';
+        } else {
+            document.getElementById('peopleLabel').textContent = 'people';
+        }
+        calculate();
+    }
+
+    function calculate() {
+        let billInput = document.getElementById('billInput').value;
+        let bill = parseFloat(billInput);
+        if (isNaN(bill)) {
+            bill = 0;
+        }
+        let tip = bill * (tipPercent / 100);
+        let total = bill + tip;
+        let tipPer = tip / people;
+        let totalPer = total / people;
+
+        document.getElementById('resTip').textContent = '$' + tip.toFixed(2);
+        document.getElementById('resTipPer').textContent = '$' + tipPer.toFixed(2);
+        document.getElementById('resTotal').textContent = '$' + totalPer.toFixed(2);
+    }
+
+    fetch("../header-footer/header.html")
+        .then(function(res) {
+            return res.text();
+        })
+        .then(function(data) {
+            document.getElementById("header").innerHTML = data;
+            let hamburger = document.querySelector(".hamburger");
+            let navMenu = document.querySelector(".nav-menu");
+            if (hamburger) {
+                hamburger.addEventListener("click", function() {
+                    hamburger.classList.toggle("active");
+                    navMenu.classList.toggle("active");
+                });
+            }
+            let navLinks = document.querySelectorAll(".nav-menu a");
+            for (let i = 0; i < navLinks.length; i++) {
+                navLinks[i].addEventListener("click", function() {
+                    hamburger.classList.remove("active");
+                    navMenu.classList.remove("active");
+                });
+            }
+        });
+
+    fetch("../header-footer/footer.html")
+        .then(function(res) {
+            return res.text();
+        })
+        .then(function(data) {
+            document.getElementById("footer").innerHTML = data;
+        });
+</script>
+</body>
+</html>

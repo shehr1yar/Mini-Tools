@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Unit Converter | Mini Tools</title>
+    <link rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Circle-icons-tools-light_blue.svg/960px-Circle-icons-tools-light_blue.svg.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background-color: #f7f8ff;
+            color: #0d0d2b;
+            overflow-x: hidden;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        ::selection { background: rgb(1, 1, 179); color: white; }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.4;
+        }
+
+        .page-wrapper {
+            flex: 1;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 20px 80px;
+        }
+
+        .page-title-wrap {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeUp 0.5s ease both;
+        }
+        
+        .page-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(1, 1, 179, 0.08);
+            border: 1px solid rgba(1, 1, 179, 0.15);
+            border-radius: 100px;
+            padding: 6px 16px;
+            font-size: 13px;
+            font-weight: 500;
+            color: rgb(1, 1, 179);
+            letter-spacing: 0.5px;
+            margin-bottom: 16px;
+        }
+        
+        .page-eyebrow span { width: 6px; height: 6px; background: rgb(1, 1, 179); border-radius: 50%; display: inline-block; }
+        
+        .page-title {
+            font-family: 'Syne', sans-serif;
+            font-size: clamp(32px, 5vw, 52px);
+            font-weight: 800;
+            letter-spacing: -2px;
+            color: #0d0d2b;
+            line-height: 1;
+        }
+        
+        .page-title .accent { color: rgb(1, 1, 179); }
+        
+        .page-subtitle { font-size: 15px; color: #6b6b8a; margin-top: 12px; }
+
+        .conv-card {
+            background: white;
+            border: 1px solid rgba(1, 1, 179, 0.15);
+            border-radius: 28px;
+            padding: 36px;
+            width: 100%;
+            max-width: 480px;
+            box-shadow: 0 20px 60px rgba(1,1,179,0.1);
+            animation: fadeUp 0.5s 0.1s ease both;
+        }
+
+        .category-tabs {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 28px;
+        }
+        
+        .tab-btn {
+            padding: 8px 16px;
+            border-radius: 100px;
+            border: 1px solid rgba(1, 1, 179, 0.15);
+            background: #f7f8ff;
+            color: #6b6b8a;
+            font-family: 'Syne', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+        
+        .tab-btn:hover { border-color: rgba(1,1,179,0.3); color: rgb(1, 1, 179); }
+        
+        .tab-btn.active {
+            background: rgb(1, 1, 179);
+            color: white;
+            border-color: rgb(1, 1, 179);
+            box-shadow: 0 4px 14px rgba(1, 1, 179, 0.25);
+        }
+
+        .conv-row {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        .conv-field {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .conv-input {
+            flex: 1;
+            padding: 14px 18px;
+            border: 1px solid rgba(1, 1, 179, 0.15);
+            border-radius: 14px;
+            font-family: 'Syne', sans-serif;
+            font-size: 22px;
+            font-weight: 700;
+            color: #0d0d2b;
+            background: #f7f8ff;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            width: 100%;
+        }
+        
+        .conv-input:focus {
+            border-color: rgb(1, 1, 179);
+            box-shadow: 0 0 0 3px rgba(1,1,179,0.1);
+            background: white;
+        }
+        
+        .conv-input::placeholder { color: rgba(1,1,179,0.25); font-size: 18px; }
+
+        .conv-select {
+            padding: 14px 16px;
+            border: 1px solid rgba(1, 1, 179, 0.15);
+            border-radius: 14px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            color: #0d0d2b;
+            background: #f7f8ff;
+            outline: none;
+            cursor: pointer;
+            transition: border-color 0.2s;
+            min-width: 130px;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b6b8a' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 32px;
+        }
+        
+        .conv-select:focus { border-color: rgb(1, 1, 179); }
+
+        .swap-wrap {
+            display: flex;
+            justify-content: center;
+            margin: 4px 0;
+        }
+        
+        .swap-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 1px solid rgba(1, 1, 179, 0.15);
+            background: white;
+            color: rgb(1, 1, 179);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s ease;
+            box-shadow: 0 2px 10px rgba(1,1,179,0.1);
+        }
+        
+        .swap-btn:hover {
+            background: rgb(1, 1, 179);
+            color: white;
+            transform: rotate(180deg);
+            box-shadow: 0 4px 14px rgba(1, 1, 179, 0.25);
+        }
+
+        .result-box {
+            background: rgba(1, 1, 179, 0.08);
+            border: 1px solid rgba(1, 1, 179, 0.15);
+            border-radius: 16px;
+            padding: 20px 24px;
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            min-height: 68px;
+        }
+        
+        .result-text {
+            font-family: 'Syne', sans-serif;
+            font-size: 28px;
+            font-weight: 800;
+            color: rgb(1, 1, 179);
+            letter-spacing: -0.5px;
+            word-break: break-all;
+        }
+        
+        .result-unit {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            color: #6b6b8a;
+            white-space: nowrap;
+        }
+
+        .formula-hint {
+            text-align: center;
+            font-size: 13px;
+            color: #6b6b8a;
+            margin-top: 16px;
+            min-height: 18px;
+            font-style: italic;
+        }
+
+        @media (max-width: 520px) {
+            .conv-card { padding: 24px; }
+            .conv-field { flex-direction: column; align-items: stretch; }
+            .conv-select { min-width: unset; }
+            .result-text { font-size: 22px; }
+            .category-tabs { gap: 6px; }
+            .tab-btn { font-size: 12px; padding: 6px 12px; }
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(24px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="header"></div>
+
+    <div class="page-wrapper">
+
+        <div class="page-title-wrap">
+            <div class="page-eyebrow"><span></span> Mini Tools</div>
+            <h1 class="page-title">Unit <span class="accent">Converter</span></h1>
+            <p class="page-subtitle">How hot is the Sun in Kelvin? Let's find out.</p>
+        </div>
+
+        <div class="conv-card">
+
+            <div class="category-tabs" id="categoryTabs"></div>
+
+            <div class="conv-row">
+                <div class="conv-field">
+                    <input class="conv-input" id="fromInput" type="number" placeholder="0" oninput="convert()">
+                    <select class="conv-select" id="fromUnit" onchange="convert()"></select>
+                </div>
+
+                <div class="swap-wrap">
+                    <button class="swap-btn" onclick="swapUnits()" title="Swap units">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="conv-field">
+                    <input class="conv-input" id="toInput" type="number" placeholder="0" oninput="convertReverse()">
+                    <select class="conv-select" id="toUnit" onchange="convert()"></select>
+                </div>
+            </div>
+
+            <div class="result-box">
+                <span class="result-text" id="resultText">—</span>
+                <span class="result-unit" id="resultUnit"></span>
+            </div>
+
+            <div class="formula-hint" id="formulaHint"></div>
+
+        </div>
+
+    </div>
+
+    <div id="footer"></div>
+
+<script>
+    var categories = {
+        Length: {
+            units: ['Meter', 'Kilometer', 'Centimeter', 'Millimeter', 'Mile', 'Yard', 'Foot', 'Inch', 'Nautical Mile'],
+            toBase: { Meter: 1, Kilometer: 1000, Centimeter: 0.01, Millimeter: 0.001, Mile: 1609.344, Yard: 0.9144, Foot: 0.3048, Inch: 0.0254, 'Nautical Mile': 1852 }
+        },
+        Weight: {
+            units: ['Kilogram', 'Gram', 'Milligram', 'Pound', 'Ounce', 'Ton', 'Stone'],
+            toBase: { Kilogram: 1, Gram: 0.001, Milligram: 0.000001, Pound: 0.453592, Ounce: 0.0283495, Ton: 1000, Stone: 6.35029 }
+        },
+        Temperature: {
+            units: ['Celsius', 'Fahrenheit', 'Kelvin'],
+            special: true
+        },
+        Speed: {
+            units: ['m/s', 'km/h', 'mph', 'Knot', 'ft/s'],
+            toBase: { 'm/s': 1, 'km/h': 0.277778, 'mph': 0.44704, 'Knot': 0.514444, 'ft/s': 0.3048 }
+        },
+        Area: {
+            units: ['m²', 'km²', 'cm²', 'ft²', 'in²', 'Acre', 'Hectare'],
+            toBase: { 'm²': 1, 'km²': 1000000, 'cm²': 0.0001, 'ft²': 0.092903, 'in²': 0.00064516, 'Acre': 4046.86, 'Hectare': 10000 }
+        },
+        Volume: {
+            units: ['Liter', 'Milliliter', 'Cubic Meter', 'Gallon (US)', 'Quart', 'Pint', 'Cup', 'Fluid Oz'],
+            toBase: { 'Liter': 1, 'Milliliter': 0.001, 'Cubic Meter': 1000, 'Gallon (US)': 3.78541, 'Quart': 0.946353, 'Pint': 0.473176, 'Cup': 0.236588, 'Fluid Oz': 0.0295735 }
+        },
+        Time: {
+            units: ['Second', 'Minute', 'Hour', 'Day', 'Week', 'Month', 'Year'],
+            toBase: { Second: 1, Minute: 60, Hour: 3600, Day: 86400, Week: 604800, Month: 2629800, Year: 31557600 }
+        },
+        Data: {
+            units: ['Bit', 'Byte', 'Kilobyte', 'Megabyte', 'Gigabyte', 'Terabyte'],
+            toBase: { Bit: 0.125, Byte: 1, Kilobyte: 1024, Megabyte: 1048576, Gigabyte: 1073741824, Terabyte: 1099511627776 }
+        }
+    };
+
+    var currentCategory = 'Length';
+
+    function buildTabs() {
+        var container = document.getElementById('categoryTabs');
+        container.innerHTML = '';
+        var keys = Object.keys(categories);
+        for (var i = 0; i < keys.length; i++) {
+            var cat = keys[i];
+            var btn = document.createElement('button');
+            if (cat === currentCategory) {
+                btn.className = 'tab-btn active';
+            } else {
+                btn.className = 'tab-btn';
+            }
+            btn.textContent = cat;
+            btn.setAttribute('onclick', "selectCategory('" + cat + "')");
+            container.appendChild(btn);
+        }
+    }
+
+    function buildSelects(fromDefault, toDefault) {
+        if (fromDefault === undefined) { fromDefault = 0; }
+        if (toDefault === undefined) { toDefault = 1; }
+        
+        var units = categories[currentCategory].units;
+        var fromSel = document.getElementById('fromUnit');
+        var toSel = document.getElementById('toUnit');
+        fromSel.innerHTML = '';
+        toSel.innerHTML = '';
+        
+        for (var i = 0; i < units.length; i++) {
+            var u = units[i];
+            var fromSelected = '';
+            var toSelected = '';
+            if (i === fromDefault) { fromSelected = 'selected'; }
+            if (i === toDefault) { toSelected = 'selected'; }
+            
+            fromSel.innerHTML += '<option value="' + u + '" ' + fromSelected + '>' + u + '</option>';
+            toSel.innerHTML += '<option value="' + u + '" ' + toSelected + '>' + u + '</option>';
+        }
+    }
+
+    function selectCategory(cat) {
+        currentCategory = cat;
+        buildTabs();
+        buildSelects();
+        document.getElementById('fromInput').value = '';
+        document.getElementById('toInput').value = '';
+        document.getElementById('resultText').textContent = '—';
+        document.getElementById('resultUnit').textContent = '';
+        document.getElementById('formulaHint').textContent = '';
+    }
+
+    function convertTemp(value, from, to) {
+        var celsius;
+        if (from === 'Celsius') {
+            celsius = value;
+        } else if (from === 'Fahrenheit') {
+            celsius = (value - 32) * 5 / 9;
+        } else if (from === 'Kelvin') {
+            celsius = value - 273.15;
+        }
+
+        if (to === 'Celsius') { return celsius; }
+        if (to === 'Fahrenheit') { return celsius * 9 / 5 + 32; }
+        if (to === 'Kelvin') { return celsius + 273.15; }
+    }
+
+    function convert() {
+        var fromVal = parseFloat(document.getElementById('fromInput').value);
+        var fromUnit = document.getElementById('fromUnit').value;
+        var toUnit = document.getElementById('toUnit').value;
+
+        if (isNaN(fromVal)) {
+            document.getElementById('resultText').textContent = '—';
+            document.getElementById('resultUnit').textContent = '';
+            document.getElementById('toInput').value = '';
+            document.getElementById('formulaHint').textContent = '';
+            return;
+        }
+
+        var result;
+        var cat = categories[currentCategory];
+
+        if (cat.special) {
+            result = convertTemp(fromVal, fromUnit, toUnit);
+        } else {
+            var base = fromVal * cat.toBase[fromUnit];
+            result = base / cat.toBase[toUnit];
+        }
+
+        var formatted = formatResult(result);
+        document.getElementById('toInput').value = formatted;
+        document.getElementById('resultText').textContent = formatted;
+        document.getElementById('resultUnit').textContent = toUnit;
+        document.getElementById('formulaHint').textContent = fromVal + ' ' + fromUnit + ' = ' + formatted + ' ' + toUnit;
+    }
+
+    function convertReverse() {
+        var toVal = parseFloat(document.getElementById('toInput').value);
+        var fromUnit = document.getElementById('fromUnit').value;
+        var toUnit = document.getElementById('toUnit').value;
+
+        if (isNaN(toVal)) {
+            document.getElementById('fromInput').value = '';
+            document.getElementById('resultText').textContent = '—';
+            document.getElementById('resultUnit').textContent = '';
+            return;
+        }
+
+        var result;
+        var cat = categories[currentCategory];
+
+        if (cat.special) {
+            result = convertTemp(toVal, toUnit, fromUnit);
+        } else {
+            var base = toVal * cat.toBase[toUnit];
+            result = base / cat.toBase[fromUnit];
+        }
+
+        var formatted = formatResult(result);
+        document.getElementById('fromInput').value = formatted;
+        document.getElementById('resultText').textContent = formatResult(toVal);
+        document.getElementById('resultUnit').textContent = toUnit;
+        document.getElementById('formulaHint').textContent = formatted + ' ' + fromUnit + ' = ' + toVal + ' ' + toUnit;
+    }
+
+    function swapUnits() {
+        var fromSel = document.getElementById('fromUnit');
+        var toSel = document.getElementById('toUnit');
+        var fromInput = document.getElementById('fromInput');
+        var toInput = document.getElementById('toInput');
+
+        var tmpUnit = fromSel.value;
+        fromSel.value = toSel.value;
+        toSel.value = tmpUnit;
+
+        var tmpVal = fromInput.value;
+        fromInput.value = toInput.value;
+        toInput.value = tmpVal;
+
+        convert();
+    }
+
+    function formatResult(num) {
+        if (Math.abs(num) >= 10000000000 || (Math.abs(num) < 0.0001 && num !== 0)) {
+            return num.toExponential(4);
+        }
+        return parseFloat(num.toFixed(6)).toString();
+    }
+
+    buildTabs();
+    buildSelects();
+
+    fetch("../header-footer/header.html")
+        .then(function(res) {
+            return res.text();
+        })
+        .then(function(data) {
+            document.getElementById("header").innerHTML = data;
+            var hamburger = document.querySelector(".hamburger");
+            var navMenu = document.querySelector(".nav-menu");
+            if (hamburger) {
+                hamburger.addEventListener("click", function() {
+                    hamburger.classList.toggle("active");
+                    navMenu.classList.toggle("active");
+                });
+            }
+            var navLinks = document.querySelectorAll(".nav-menu a");
+            for (var i = 0; i < navLinks.length; i++) {
+                navLinks[i].addEventListener("click", function() {
+                    hamburger.classList.remove("active");
+                    navMenu.classList.remove("active");
+                });
+            }
+        });
+
+    fetch("../header-footer/footer.html")
+        .then(function(res) {
+            return res.text();
+        })
+        .then(function(data) {
+            document.getElementById("footer").innerHTML = data;
+        });
+</script>
+
+</body>
+</html>

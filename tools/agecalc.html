@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Age Calculator | Mini Tools</title>
+    <link rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Circle-icons-tools-light_blue.svg/960px-Circle-icons-tools-light_blue.svg.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --blue: rgb(1, 1, 179);
+            --blue-dark: rgb(0, 0, 120);
+            --blue-light: rgba(1, 1, 179, 0.08);
+            --blue-glow: rgba(1, 1, 179, 0.25);
+            --off-white: #f7f8ff;
+            --text: #0d0d2b;
+            --muted: #6b6b8a;
+            --border: rgba(1, 1, 179, 0.15);
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background-color: var(--off-white);
+            color: var(--text);
+            overflow-x: hidden;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        ::selection { background: var(--blue); color: white; }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.4;
+        }
+
+        .page-wrapper {
+            flex: 1;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 20px 80px;
+        }
+
+        .page-title-wrap {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeUp 0.5s ease both;
+        }
+        .page-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--blue-light);
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            padding: 6px 16px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--blue);
+            letter-spacing: 0.5px;
+            margin-bottom: 16px;
+        }
+        .page-eyebrow span { width: 6px; height: 6px; background: var(--blue); border-radius: 50%; display: inline-block; }
+        .page-title {
+            font-family: 'Syne', sans-serif;
+            font-size: clamp(32px, 5vw, 52px);
+            font-weight: 800;
+            letter-spacing: -2px;
+            color: var(--text);
+            line-height: 1;
+        }
+        .page-title .accent { color: var(--blue); }
+        .page-subtitle { font-size: 15px; color: var(--muted); margin-top: 12px; }
+
+        .age-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 28px;
+            padding: 36px;
+            width: 100%;
+            max-width: 460px;
+            box-shadow: 0 20px 60px rgba(1,1,179,0.1);
+            animation: fadeUp 0.5s 0.1s ease both;
+        }
+
+        .mode-toggle {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            background: var(--off-white);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 4px;
+            margin-bottom: 28px;
+        }
+        .mode-btn {
+            padding: 10px;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Syne', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            background: transparent;
+            color: var(--muted);
+            transition: 0.2s ease;
+        }
+        .mode-btn.active {
+            background: var(--blue);
+            color: white;
+            box-shadow: 0 4px 14px var(--blue-glow);
+        }
+
+        .field-label {
+            font-family: 'Syne', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--muted);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .age-input {
+            width: 100%;
+            padding: 14px 18px;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            font-family: 'Syne', sans-serif;
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text);
+            background: var(--off-white);
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            margin-bottom: 20px;
+        }
+        .age-input:focus {
+            border-color: var(--blue);
+            box-shadow: 0 0 0 3px rgba(1,1,179,0.1);
+            background: white;
+        }
+        .age-input[type="date"]::-webkit-calendar-picker-indicator {
+            opacity: 0.5;
+            cursor: pointer;
+        }
+
+        .calc-btn {
+            width: 100%;
+            padding: 15px;
+            background: var(--blue);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-family: 'Syne', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s ease;
+            box-shadow: 0 6px 20px var(--blue-glow);
+            margin-bottom: 24px;
+        }
+        .calc-btn:hover { background: var(--blue-dark); transform: translateY(-2px); box-shadow: 0 10px 28px var(--blue-glow); }
+        .calc-btn:active { transform: translateY(0); }
+
+        .result-area {
+            display: none;
+            flex-direction: column;
+            gap: 12px;
+            animation: fadeUp 0.4s ease both;
+        }
+        .result-area.show { display: flex; }
+
+        .result-main {
+            background: var(--blue);
+            border-radius: 18px;
+            padding: 24px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .result-main::before {
+            content: '';
+            position: absolute;
+            width: 200px; height: 200px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.05);
+            top: -60px; right: -60px;
+        }
+        .result-main-label {
+            font-size: 13px;
+            color: rgba(255,255,255,0.65);
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        .result-main-value {
+            font-family: 'Syne', sans-serif;
+            font-size: clamp(36px, 8vw, 56px);
+            font-weight: 800;
+            color: white;
+            letter-spacing: -2px;
+            line-height: 1;
+        }
+        .result-main-sub {
+            font-size: 14px;
+            color: rgba(255,255,255,0.7);
+            margin-top: 8px;
+        }
+
+        .result-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .stat-pill {
+            background: var(--off-white);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 16px;
+            text-align: center;
+        }
+        .stat-pill-value {
+            font-family: 'Syne', sans-serif;
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--blue);
+            letter-spacing: -0.5px;
+        }
+        .stat-pill-label {
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 4px;
+        }
+
+        .fun-fact {
+            background: var(--blue-light);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 16px 20px;
+            font-size: 14px;
+            color: var(--blue);
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        .error-msg {
+            display: none;
+            color: rgb(220, 38, 38);
+            font-size: 13px;
+            margin-top: -14px;
+            margin-bottom: 14px;
+            padding-left: 4px;
+        }
+        .error-msg.show { display: block; }
+
+        @media (max-width: 480px) {
+            .age-card { padding: 24px; }
+            .result-stats { grid-template-columns: 1fr 1fr; }
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(24px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="header"></div>
+
+    <div class="page-wrapper">
+
+        <div class="page-title-wrap">
+            <div class="page-eyebrow"><span></span> Mini Tools</div>
+            <h1 class="page-title">Age <span class="accent">Calculator</span></h1>
+            <p class="page-subtitle">Ask your granny, it's fun!</p>
+        </div>
+
+        <div class="age-card">
+
+            <div class="mode-toggle">
+                <button class="mode-btn active" id="btnBirthday" onclick="setMode('birthday')">🎂 From Birthday</button>
+                <button class="mode-btn" id="btnAge" onclick="setMode('age')">🔢 From Age</button>
+            </div>
+
+            <div id="birthdayMode">
+                <label class="field-label">Enter your date of birth</label>
+                <input class="age-input" type="date" id="birthdayInput" max="">
+                <p class="error-msg" id="birthdayError">Please enter a valid date of birth.</p>
+                <button class="calc-btn" onclick="calcFromBirthday()">Calculate Age →</button>
+            </div>
+
+            <div id="ageMode" style="display:none;">
+                <label class="field-label">Enter your age (years)</label>
+                <input class="age-input" type="number" id="ageInput" placeholder="e.g. 52" min="0" max="130">
+                <p class="error-msg" id="ageError">Please enter a valid age between 0 and 130.</p>
+                <button class="calc-btn" onclick="calcFromAge()">Find Birth Year →</button>
+            </div>
+
+            <div class="result-area" id="resultArea">
+
+                <div class="result-main">
+                    <div class="result-main-label" id="resultLabel"></div>
+                    <div class="result-main-value" id="resultValue"></div>
+                    <div class="result-main-sub" id="resultSub"></div>
+                </div>
+
+                <div class="result-stats" id="resultStats"></div>
+
+                <div class="fun-fact" id="funFact"></div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div id="footer"></div>
+
+<script>
+    let currentMode = 'birthday';
+
+    const today = new Date();
+    let yyyy = today.getFullYear();
+    let mm = today.getMonth() + 1;
+    let dd = today.getDate();
+    if (mm < 10) {
+        mm = '0' + mm;
+    }
+    if (dd < 10) {
+        dd = '0' + dd;
+    }
+    document.getElementById('birthdayInput').max = yyyy + '-' + mm + '-' + dd;
+
+    function setMode(mode) {
+        currentMode = mode;
+        if (mode === 'birthday') {
+            document.getElementById('birthdayMode').style.display = 'block';
+            document.getElementById('ageMode').style.display = 'none';
+            document.getElementById('btnBirthday').classList.add('active');
+            document.getElementById('btnAge').classList.remove('active');
+        } else {
+            document.getElementById('birthdayMode').style.display = 'none';
+            document.getElementById('ageMode').style.display = 'block';
+            document.getElementById('btnBirthday').classList.remove('active');
+            document.getElementById('btnAge').classList.add('active');
+        }
+        hideResult();
+        hideErrors();
+    }
+
+    function hideResult() {
+        document.getElementById('resultArea').classList.remove('show');
+    }
+
+    function hideErrors() {
+        document.getElementById('birthdayError').classList.remove('show');
+        document.getElementById('ageError').classList.remove('show');
+    }
+
+    function calcFromBirthday() {
+        hideErrors();
+        hideResult();
+
+        const val = document.getElementById('birthdayInput').value;
+        if (!val) {
+            document.getElementById('birthdayError').classList.add('show');
+            return;
+        }
+
+        const birth = new Date(val);
+        const now = new Date();
+
+        if (birth > now) {
+            document.getElementById('birthdayError').textContent = "Date of birth can't be in the future!";
+            document.getElementById('birthdayError').classList.add('show');
+            return;
+        }
+
+        let years = now.getFullYear() - birth.getFullYear();
+        let months = now.getMonth() - birth.getMonth();
+        let days = now.getDate() - birth.getDate();
+
+        if (days < 0) {
+            months = months - 1;
+            let lastDayOfPrevMonth = new Date(now.getFullYear(), now.getMonth(), 0).getDate();
+            days = days + lastDayOfPrevMonth;
+        }
+        if (months < 0) {
+            years = years - 1;
+            months = months + 12;
+        }
+
+        const totalDays = Math.floor((now - birth) / (1000 * 60 * 60 * 24));
+        const totalWeeks = Math.floor(totalDays / 7);
+        const totalMonths = years * 12 + months;
+        const totalHours = totalDays * 24;
+
+        const birthDay = birth.toLocaleDateString('en-US', { weekday: 'long' });
+        const nextBirthday = getNextBirthday(birth);
+        const daysToNext = Math.ceil((nextBirthday - now) / (1000 * 60 * 60 * 24));
+
+        let monthText = "months";
+        if (months === 1) {
+            monthText = "month";
+        }
+
+        let dayText = "days";
+        if (days === 1) {
+            dayText = "day";
+        }
+
+        document.getElementById('resultLabel').textContent = 'YOU ARE';
+        document.getElementById('resultValue').textContent = years + ' yrs';
+        document.getElementById('resultSub').textContent = months + ' ' + monthText + ' and ' + days + ' ' + dayText + ' old';
+
+        document.getElementById('resultStats').innerHTML = 
+            '<div class="stat-pill">' +
+                '<div class="stat-pill-value">' + totalMonths.toLocaleString() + '</div>' +
+                '<div class="stat-pill-label">Total Months</div>' +
+            '</div>' +
+            '<div class="stat-pill">' +
+                '<div class="stat-pill-value">' + totalWeeks.toLocaleString() + '</div>' +
+                '<div class="stat-pill-label">Total Weeks</div>' +
+            '</div>' +
+            '<div class="stat-pill">' +
+                '<div class="stat-pill-value">' + totalDays.toLocaleString() + '</div>' +
+                '<div class="stat-pill-label">Total Days</div>' +
+            '</div>' +
+            '<div class="stat-pill">' +
+                '<div class="stat-pill-value">' + totalHours.toLocaleString() + '</div>' +
+                '<div class="stat-pill-label">Total Hours</div>' +
+            '</div>';
+
+        if (daysToNext === 0) {
+            document.getElementById('funFact').textContent = "🎉 Happy Birthday! You were born on a " + birthDay + ".";
+        } else {
+            let daysToNextText = "days";
+            if (daysToNext === 1) {
+                daysToNextText = "day";
+            }
+            document.getElementById('funFact').textContent = "🎂 You were born on a " + birthDay + ". Your next birthday is in " + daysToNext + " " + daysToNextText + "!";
+        }
+
+        document.getElementById('resultArea').classList.add('show');
+    }
+
+    function calcFromAge() {
+        hideErrors();
+        hideResult();
+
+        const val = parseInt(document.getElementById('ageInput').value);
+        if (isNaN(val) || val < 0 || val > 130) {
+            document.getElementById('ageError').classList.add('show');
+            return;
+        }
+
+        const now = new Date();
+        const birthYear = now.getFullYear() - val;
+        const birthYearAlt = birthYear - 1;
+
+        const generation = getGeneration(birthYear);
+        const famousEvents = getFamousEvent(birthYear);
+
+        document.getElementById('resultLabel').textContent = 'BORN AROUND';
+        document.getElementById('resultValue').textContent = birthYear;
+        document.getElementById('resultSub').textContent = 'or ' + birthYearAlt + ' if your birthday hasn\'t passed yet';
+
+        let totalMonthsApprox = val * 12;
+        let totalDaysApprox = val * 365;
+        let totalHoursApprox = val * 365 * 24;
+
+        document.getElementById('resultStats').innerHTML = 
+            '<div class="stat-pill">' +
+                '<div class="stat-pill-value">' + totalMonthsApprox + '</div>' +
+                '<div class="stat-pill-label">Months Lived</div>' +
+            '</div>' +
+            '<div class="stat-pill">' +
+                '<div class="stat-pill-value">' + totalDaysApprox.toLocaleString() + '</div>' +
+                '<div class="stat-pill-label">Days (approx)</div>' +
+            '</div>' +
+            '<div class="stat-pill" style="grid-column: span 2;">' +
+                '<div class="stat-pill-value" style="font-size:17px;">' + generation + '</div>' +
+                '<div class="stat-pill-label">Your Generation</div>' +
+            '</div>';
+
+        if (famousEvents !== null) {
+            document.getElementById('funFact').textContent = "📅 In " + birthYear + ": " + famousEvents;
+        } else {
+            document.getElementById('funFact').textContent = "📅 You were born around " + birthYear + " — " + totalHoursApprox + " hours ago!";
+        }
+
+        document.getElementById('resultArea').classList.add('show');
+    }
+
+    function getNextBirthday(birth) {
+        const now = new Date();
+        const next = new Date(now.getFullYear(), birth.getMonth(), birth.getDate());
+        if (next <= now) {
+            next.setFullYear(now.getFullYear() + 1);
+        }
+        return next;
+    }
+
+    function getGeneration(year) {
+        if (year >= 1928 && year <= 1945) { return 'Silent Generation'; }
+        if (year >= 1946 && year <= 1964) { return 'Baby Boomer'; }
+        if (year >= 1965 && year <= 1980) { return 'Generation X'; }
+        if (year >= 1981 && year <= 1996) { return 'Millennial'; }
+        if (year >= 1997 && year <= 2012) { return 'Generation Z'; }
+        if (year >= 2013) { return 'Generation Alpha'; }
+        return 'The Greatest Generation';
+    }
+
+    function getFamousEvent(year) {
+        const events = {
+            1969: 'Humans landed on the Moon 🌕',
+            1989: 'The Berlin Wall fell 🧱',
+            1991: 'The World Wide Web was born 🌐',
+            1997: 'Harry Potter was first published 📚',
+            2001: 'Wikipedia launched 📖',
+            2004: 'Facebook launched 📘',
+            2007: 'The first iPhone was released 📱',
+            2008: 'The global financial crisis hit 📉',
+            2009: 'Bitcoin was created 💰',
+            2010: 'Instagram launched 📷',
+            2012: 'Minecraft hit 20M users 🎮',
+            2020: 'COVID-19 pandemic began 😷',
+            2022: 'James Webb telescope launched 🔭',
+        };
+        if (events[year] !== undefined) {
+            return events[year];
+        } else {
+            return null;
+        }
+    }
+
+    fetch("../header-footer/header.html")
+        .then(function(res) {
+            return res.text();
+        })
+        .then(function(data) {
+            document.getElementById("header").innerHTML = data;
+            const hamburger = document.querySelector(".hamburger");
+            const navMenu = document.querySelector(".nav-menu");
+            if (hamburger) {
+                hamburger.addEventListener("click", function() {
+                    if (hamburger.classList.contains("active")) {
+                        hamburger.classList.remove("active");
+                        navMenu.classList.remove("active");
+                    } else {
+                        hamburger.classList.add("active");
+                        navMenu.classList.add("active");
+                    }
+                });
+            }
+            const navLinks = document.querySelectorAll(".nav-menu a");
+            for (let i = 0; i < navLinks.length; i++) {
+                navLinks[i].addEventListener("click", function() {
+                    if (hamburger) {
+                        hamburger.classList.remove("active");
+                    }
+                    if (navMenu) {
+                        navMenu.classList.remove("active");
+                    }
+                });
+            }
+        });
+
+    fetch("../header-footer/footer.html")
+        .then(function(res) {
+            return res.text();
+        })
+        .then(function(data) {
+            document.getElementById("footer").innerHTML = data;
+        });
+</script>
+
+</body>
+</html>

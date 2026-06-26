@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mini Tools</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;800&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .headercontainer {
+            background-color: rgb(1, 1, 179);
+            padding: 20px 0;
+            box-shadow: 0 5px 10px rgba(30, 27, 179, 0.3);
+            position: relative;
+            z-index: 100;
+        }
+
+        .mainheader {
+            max-width: 1100px;
+            margin: auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header1 h1 {
+            font-size: 30px;
+            font-family: 'Syne', sans-serif;
+            margin: 0;
+        }
+
+        .header1 h1 a {
+            color: white;
+            text-decoration: none;
+        }
+
+        /* Desktop Nav */
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            gap: 30px;
+        }
+
+        .nav-menu a {
+            color: white;
+            font-size: 14px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: 0.3s;
+        }
+
+        .nav-menu a:hover {
+            color: #ccc;
+        }
+
+        /* Hamburger Styles */
+        .hamburger {
+            display: none;
+            cursor: pointer;
+            z-index: 200; 
+        }
+
+        .bar {
+            display: block;
+            width: 25px;
+            height: 3px;
+            margin: 5px 0;
+            background-color: white;
+            transition: 0.3s;
+        }
+
+        @media (max-width: 1024px) {
+            .hamburger {
+                display: block;
+            }
+
+            .nav-menu {
+                position: fixed;
+                left: -100%;
+                top: 0;
+                flex-direction: column;
+                background-color: rgb(1, 1, 179);
+                width: 100%;
+                height: 100vh;
+                justify-content: center;
+                align-items: center;
+                transition: 0.4s ease;
+                z-index: 150;
+            }
+
+            .nav-menu.active {
+                left: 0;
+            }
+
+            .hamburger.active .bar:nth-child(2) { opacity: 0; }
+            .hamburger.active .bar:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+            .hamburger.active .bar:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
+            
+            .nav-menu li { margin: 20px 0; }
+            .nav-menu a { font-size: 24px; }
+        }
+    </style>
+</head>
+<body>
+
+<header class="headercontainer">
+    <div class="mainheader">
+        <div class="header1">
+            <h1><a href="index.html">Mini Tools</a></h1>
+        </div>
+
+        <nav>
+            <ul class="nav-menu">
+                <li><a href="index.html">HOME</a></li>
+                <li><a href="index.html#tools">TOOLS</a></li>
+                <li><a href="https://www.linkedin.com/in/shehriyar-farrukh" target="_blank">LINKEDIN</a></li>
+                <li><a href="https://youtu.be/Aq5WXmQQooo?si=lqkghu8p3B8EsHv4" target="_blank">RICK ROLL</a></li>
+            </ul>
+        </nav>
+
+        <div class="hamburger">
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+        </div>
+    </div>
+</header>
+
+<script>
+    const hamburger = document.querySelector(".hamburger");
+    const navMenu = document.querySelector(".nav-menu");
+
+    hamburger.addEventListener("click", () => {
+        hamburger.classList.toggle("active");
+        navMenu.classList.toggle("active");
+    });
+
+    document.querySelectorAll(".nav-menu a").forEach(n => n.addEventListener("click", () => {
+        hamburger.classList.remove("active");
+        navMenu.classList.remove("active");
+    }));
+</script>
+
+</body>
+</html>

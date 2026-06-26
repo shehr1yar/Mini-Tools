@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Random Quote | Mini Tools</title>
+    <link rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Circle-icons-tools-light_blue.svg/960px-Circle-icons-tools-light_blue.svg.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --blue: rgb(1, 1, 179);
+            --blue-dark: rgb(0, 0, 120);
+            --blue-light: rgba(1, 1, 179, 0.08);
+            --blue-glow: rgba(1, 1, 179, 0.25);
+            --off-white: #f7f8ff;
+            --text: #0d0d2b;
+            --muted: #6b6b8a;
+            --border: rgba(1, 1, 179, 0.15);
+        }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background-color: var(--off-white);
+            color: var(--text);
+            overflow-x: hidden;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        ::selection { background: var(--blue); color: white; }
+        body::before {
+            content: '';
+            position: fixed; inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events: none; z-index: 0; opacity: 0.4;
+        }
+
+        .page-wrapper {
+            flex: 1; position: relative; z-index: 1;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 60px 20px 80px;
+        }
+
+        .page-title-wrap { text-align: center; margin-bottom: 40px; animation: fadeUp 0.5s ease both; }
+        .page-eyebrow {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: var(--blue-light); border: 1px solid var(--border);
+            border-radius: 100px; padding: 6px 16px;
+            font-size: 13px; font-weight: 500; color: var(--blue); letter-spacing: 0.5px; margin-bottom: 16px;
+        }
+        .page-eyebrow span { width: 6px; height: 6px; background: var(--blue); border-radius: 50%; display: inline-block; }
+        .page-title { font-family: 'Syne', sans-serif; font-size: clamp(32px, 5vw, 52px); font-weight: 800; letter-spacing: -2px; color: var(--text); line-height: 1; }
+        .page-title .accent { color: var(--blue); }
+        .page-subtitle { font-size: 15px; color: var(--muted); margin-top: 12px; }
+
+        /* Card */
+        .card {
+            background: white; border: 1px solid var(--border); border-radius: 28px;
+            padding: 40px; width: 100%; max-width: 580px;
+            box-shadow: 0 20px 60px rgba(1,1,179,0.1); animation: fadeUp 0.5s 0.1s ease both;
+        }
+
+        /* Category tabs */
+        .category-tabs {
+            display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 32px;
+        }
+        .tab-btn {
+            padding: 8px 16px; border-radius: 100px;
+            border: 1px solid var(--border); background: var(--off-white);
+            color: var(--muted); font-family: 'Syne', sans-serif;
+            font-size: 13px; font-weight: 700; cursor: pointer; transition: 0.2s ease;
+        }
+        .tab-btn:hover { border-color: rgba(1,1,179,0.3); color: var(--blue); }
+        .tab-btn.active { background: var(--blue); color: white; border-color: var(--blue); box-shadow: 0 4px 14px var(--blue-glow); }
+
+        /* Quote display */
+        .quote-display {
+            background: var(--blue);
+            border-radius: 20px;
+            padding: 36px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+            min-height: 180px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .quote-display::before {
+            content: '\201C';
+            position: absolute;
+            top: -10px; left: 20px;
+            font-family: 'Syne', sans-serif;
+            font-size: 120px;
+            font-weight: 800;
+            color: rgba(255,255,255,0.08);
+            line-height: 1;
+            pointer-events: none;
+        }
+        .quote-display::after {
+            content: '';
+            position: absolute;
+            width: 200px; height: 200px; border-radius: 50%;
+            background: rgba(255,255,255,0.04);
+            bottom: -60px; right: -40px;
+        }
+
+        .quote-text {
+            font-family: 'Syne', sans-serif;
+            font-size: clamp(16px, 2.5vw, 20px);
+            font-weight: 700;
+            color: white;
+            line-height: 1.6;
+            position: relative;
+            z-index: 1;
+            transition: opacity 0.3s ease;
+        }
+        .quote-text.fade { opacity: 0; }
+
+        .quote-author {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            color: rgba(255,255,255,0.65);
+            margin-top: 20px;
+            position: relative;
+            z-index: 1;
+            transition: opacity 0.3s ease;
+        }
+        .quote-author.fade { opacity: 0; }
+        .quote-author::before { content: '— '; }
+
+        /* Actions row */
+        .actions-row {
+            display: flex; gap: 10px; flex-wrap: wrap;
+        }
+        .action-btn {
+            flex: 1;
+            padding: 13px;
+            border-radius: 14px;
+            font-family: 'Syne', sans-serif;
+            font-size: 14px; font-weight: 700;
+            cursor: pointer; transition: 0.2s ease;
+            border: 1px solid var(--border);
+            min-width: 100px;
+        }
+        .action-btn.primary {
+            background: var(--blue); color: white; border-color: var(--blue);
+            box-shadow: 0 4px 14px var(--blue-glow);
+        }
+        .action-btn.primary:hover { background: var(--blue-dark); transform: translateY(-2px); }
+        .action-btn.secondary {
+            background: var(--off-white); color: var(--muted);
+        }
+        .action-btn.secondary:hover { color: var(--blue); border-color: rgba(1,1,179,0.3); }
+        .action-btn.secondary.copied { background: #22c55e20; color: #22c55e; border-color: #22c55e40; }
+
+        /* Counter */
+        .quote-counter {
+            text-align: center;
+            font-size: 13px;
+            color: var(--muted);
+            margin-top: 16px;
+        }
+
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <div id="header"></div>
+
+    <div class="page-wrapper">
+        <div class="page-title-wrap">
+            <div class="page-eyebrow"><span></span> Mini Tools</div>
+            <h1 class="page-title">Random <span class="accent">Quote</span></h1>
+            <p class="page-subtitle">Feeling down? Here's something for your day.</p>
+        </div>
+
+        <div class="card">
+            <div class="category-tabs" id="categoryTabs"></div>
+
+            <div class="quote-display">
+                <div class="quote-text" id="quoteText">Click "New Quote" to get inspired.</div>
+                <div class="quote-author" id="quoteAuthor">Mini Tools</div>
+            </div>
+
+            <div class="actions-row">
+                <button class="action-btn primary" onclick="newQuote()">New Quote</button>
+                <button class="action-btn secondary" id="copyBtn" onclick="copyQuote()">Copy</button>
+            </div>
+
+            <div class="quote-counter" id="quoteCounter"></div>
+        </div>
+    </div>
+
+    <div id="footer"></div>
+
+<script>
+    const quotes = {
+        Motivational: [
+            { text: "The only way to do great work is to love what you do.", author: "Steve Jobs" },
+            { text: "It does not matter how slowly you go as long as you do not stop.", author: "Confucius" },
+            { text: "Success is not final, failure is not fatal: it is the courage to continue that counts.", author: "Winston Churchill" },
+            { text: "Believe you can and you're halfway there.", author: "Theodore Roosevelt" },
+            { text: "The future belongs to those who believe in the beauty of their dreams.", author: "Eleanor Roosevelt" },
+            { text: "Don't watch the clock; do what it does. Keep going.", author: "Sam Levenson" },
+            { text: "Hard work beats talent when talent doesn't work hard.", author: "Tim Notke" },
+            { text: "You miss 100% of the shots you don't take.", author: "Wayne Gretzky" },
+            { text: "Start where you are. Use what you have. Do what you can.", author: "Arthur Ashe" },
+            { text: "Dream big and dare to fail.", author: "Norman Vaughan" }
+        ],
+        Wisdom: [
+            { text: "The only true wisdom is in knowing you know nothing.", author: "Socrates" },
+            { text: "The unexamined life is not worth living.", author: "Socrates" },
+            { text: "In the middle of every difficulty lies opportunity.", author: "Albert Einstein" },
+            { text: "Life is what happens when you're busy making other plans.", author: "John Lennon" },
+            { text: "The journey of a thousand miles begins with one step.", author: "Lao Tzu" },
+            { text: "Yesterday is history, tomorrow is a mystery, today is a gift.", author: "Eleanor Roosevelt" },
+            { text: "To know what you know and what you do not know — that is true knowledge.", author: "Confucius" },
+            { text: "We are what we repeatedly do. Excellence is not an act, but a habit.", author: "Aristotle" },
+            { text: "It is not length of life, but depth of life.", author: "Ralph Waldo Emerson" },
+            { text: "The wise man does not lay up his own treasures. The more he gives, the more he has.", author: "Lao Tzu" }
+        ],
+        Funny: [
+            { text: "I'm not lazy. I'm just on my energy saving mode.", author: "Unknown" },
+            { text: "I asked God for a bike, but I know God doesn't work that way. So I stole a bike and asked for forgiveness.", author: "Emo Philips" },
+            { text: "Behind every great man is a woman rolling her eyes.", author: "Jim Carrey" },
+            { text: "The trouble with having an open mind is that people keep coming along and sticking things into it.", author: "Terry Pratchett" },
+            { text: "Before you criticize someone, walk a mile in their shoes. That way, you're a mile away from them and you have their shoes.", author: "Jack Handey" },
+            { text: "A day without sunshine is like, you know, night.", author: "Steve Martin" },
+            { text: "I don't need a hair stylist, my pillow gives me a new hairstyle every morning.", author: "Unknown" },
+            { text: "Common sense is like deodorant. The people who need it most never use it.", author: "Unknown" },
+            { text: "My bed is a magical place where I suddenly remember everything I forgot to do.", author: "Unknown" },
+            { text: "I am so clever that sometimes I don't understand a single word of what I am saying.", author: "Oscar Wilde" }
+        ],
+        Life: [
+            { text: "Life is not measured by the number of breaths we take, but by the moments that take our breath away.", author: "Maya Angelou" },
+            { text: "In three words I can sum up everything I've learned about life: it goes on.", author: "Robert Frost" },
+            { text: "Life is really simple, but we insist on making it complicated.", author: "Confucius" },
+            { text: "The purpose of our lives is to be happy.", author: "Dalai Lama" },
+            { text: "Get busy living or get busy dying.", author: "Stephen King" },
+            { text: "You only live once, but if you do it right, once is enough.", author: "Mae West" },
+            { text: "Many of life's failures are people who did not realize how close they were to success when they gave up.", author: "Thomas Edison" },
+            { text: "If life were predictable it would cease to be life, and be without flavor.", author: "Eleanor Roosevelt" },
+            { text: "Life itself is the most wonderful fairy tale.", author: "Hans Christian Andersen" },
+            { text: "Do not go where the path may lead, go instead where there is no path and leave a trail.", author: "Ralph Waldo Emerson" }
+        ],
+        Success: [
+            { text: "Success usually comes to those who are too busy to be looking for it.", author: "Henry David Thoreau" },
+            { text: "Don't be afraid to give up the good to go for the great.", author: "John D. Rockefeller" },
+            { text: "I find that the harder I work, the more luck I seem to have.", author: "Thomas Jefferson" },
+            { text: "Success is walking from failure to failure with no loss of enthusiasm.", author: "Winston Churchill" },
+            { text: "Opportunities don't happen. You create them.", author: "Chris Grosser" },
+            { text: "Try not to become a man of success. Rather become a man of value.", author: "Albert Einstein" },
+            { text: "Great minds discuss ideas; average minds discuss events; small minds discuss people.", author: "Eleanor Roosevelt" },
+            { text: "It is not the strongest of the species that survive, nor the most intelligent, but the one most responsive to change.", author: "Charles Darwin" },
+            { text: "Don't let the fear of losing be greater than the excitement of winning.", author: "Robert Kiyosaki" },
+            { text: "If you are not willing to risk the usual, you will have to settle for the ordinary.", author: "Jim Rohn" }
+        ]
+    };
+
+    let currentCategory = 'Motivational';
+    let shownIndices = [];
+    let currentIndex = -1;
+
+    function buildTabs() {
+        let container = document.getElementById('categoryTabs');
+        container.innerHTML = '';
+        
+        let categories = ['Motivational', 'Wisdom', 'Funny', 'Life', 'Success'];
+        
+        for (let i = 0; i < categories.length; i++) {
+            let cat = categories[i];
+            let btn = document.createElement('button');
+            
+            if (cat === currentCategory) {
+                btn.className = 'tab-btn active';
+            } else {
+                btn.className = 'tab-btn';
+            }
+            
+            btn.textContent = cat;
+            btn.onclick = function() {
+                currentCategory = cat;
+                shownIndices = [];
+                buildTabs();
+                newQuote();
+            };
+            container.appendChild(btn);
+        }
+    }
+
+    function newQuote() {
+        let pool = quotes[currentCategory];
+
+        if (shownIndices.length >= pool.length) {
+            shownIndices = [];
+        }
+
+        let idx = Math.floor(Math.random() * pool.length);
+        let dynamicCheck = false;
+        
+        while (dynamicCheck === false) {
+            let found = false;
+            for (let i = 0; i < shownIndices.length; i++) {
+                if (shownIndices[i] === idx) {
+                    found = true;
+                }
+            }
+            if (found === true) {
+                idx = Math.floor(Math.random() * pool.length);
+            } else {
+                dynamicCheck = true;
+            }
+        }
+
+        shownIndices.push(idx);
+        currentIndex = idx;
+
+        let textEl = document.getElementById('quoteText');
+        let authorEl = document.getElementById('quoteAuthor');
+
+        textEl.classList.add('fade');
+        authorEl.classList.add('fade');
+
+        setTimeout(function() {
+            textEl.textContent = pool[idx].text;
+            authorEl.textContent = pool[idx].author;
+            textEl.classList.remove('fade');
+            authorEl.classList.remove('fade');
+        }, 300);
+
+        document.getElementById('quoteCounter').textContent = shownIndices.length + " of " + pool.length + " quotes in " + currentCategory;
+
+        let copyBtn = document.getElementById('copyBtn');
+        copyBtn.textContent = 'Copy';
+        copyBtn.classList.remove('copied');
+    }
+
+    function copyQuote() {
+        let text = document.getElementById('quoteText').textContent;
+        let author = document.getElementById('quoteAuthor').textContent;
+        if (text === 'Click "New Quote" to get inspired.') {
+            return;
+        }
+        
+        navigator.clipboard.writeText('"' + text + '" — ' + author)
+            .then(function() {
+                let btn = document.getElementById('copyBtn');
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function() {
+                    btn.textContent = 'Copy';
+                    btn.classList.remove('copied');
+                }, 2000);
+            });
+    }
+
+    buildTabs();
+    newQuote();
+
+    fetch("../header-footer/header.html")
+        .then(function(res) {
+            return res.text();
+        })
+        .then(function(data) {
+            document.getElementById("header").innerHTML = data;
+            let hamburger = document.querySelector(".hamburger");
+            let navMenu = document.querySelector(".nav-menu");
+            if (hamburger) {
+                hamburger.addEventListener("click", function() {
+                    hamburger.classList.toggle("active");
+                    navMenu.classList.toggle("active");
+                });
+            }
+            let navLinks = document.querySelectorAll(".nav-menu a");
+            for (let i = 0; i < navLinks.length; i++) {
+                navLinks[i].addEventListener("click", function() {
+                    hamburger.classList.remove("active");
+                    navMenu.classList.remove("active");
+                });
+            }
+        });
+
+    fetch("../header-footer/footer.html")
+        .then(function(res) {
+            return res.text();
+        })
+        .then(function(data) {
+            document.getElementById("footer").innerHTML = data;
+        });
+</script>
+</body>
+</html>
