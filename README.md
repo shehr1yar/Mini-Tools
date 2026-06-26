@@ -8,7 +8,7 @@ MiniTools is a lightweight utility website that brings multiple everyday tools i
 
 Try MiniTools here:
 
-**<a href="https://9minitools.netlify.app" target="_blank" rel="noopener noreferrer">9minitools.netlify.app</a>**
+**<a href="https://9minitools.netlify.app" target="_blank">9minitools.netlify.app</a>**
 
 ## Features
 
