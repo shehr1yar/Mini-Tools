@@ -4,7 +4,7 @@ A collection of simple, useful, and interactive web tools built with HTML, CSS, 
 
 MiniTools is a lightweight utility website that brings multiple everyday tools into one place. The project focuses on creating clean interfaces, practical functionality, and an easy user experience without relying on external frameworks.
 
-## 🌐 Live Demo
+## Live Demo
 
 Try MiniTools here:
 
@@ -48,7 +48,7 @@ MiniTools currently includes:
 * JavaScript
 * Google Fonts
 
-## 📂 Project Structure
+## Project Structure
 
 ```text
 MiniTools/
